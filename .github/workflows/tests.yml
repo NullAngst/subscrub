@@ -1,0 +1,28 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Oldest supported and newest available.
+        python: ["3.10", "3.x"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install dependencies
+        run: python -m pip install --upgrade pysubs2 pytest
+      # Called through python, not ./subscrub.py, since files uploaded
+      # through the GitHub web UI lose their executable bit.
+      - name: Run tests
+        run: python -m pytest -q
+      - name: Smoke test the CLI
+        run: |
+          python subscrub.py --version
+          python subscrub.py patterns > /dev/null
