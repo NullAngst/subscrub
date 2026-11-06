@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "subscrub"
+version = "1.0.0"
+description = "Clean up machine-generated subtitles: Whisper hallucinations, credits, sound tags, long cues and bad timing."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "GPL-3.0-or-later" }
+dependencies = ["pysubs2"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Environment :: Console",
+    "Topic :: Multimedia :: Video",
+]
+
+[project.urls]
+Homepage = "https://github.com/NullAngst/Subscrub"
+
+[project.scripts]
+subscrub = "subscrub:main"
+
+[tool.setuptools]
+py-modules = ["subscrub"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
