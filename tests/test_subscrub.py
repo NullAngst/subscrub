@@ -84,6 +84,12 @@ def test_keep_thanks():
     "Untertitel der Amara.org-Community",
     "Subtitles by the Amara.org community",
     "Subtítulos realizados por la comunidad de Amara.org",
+    "NDR live untertitelt.",
+    "Live untertitelt vom NDR.",
+    "WDR mediagroup",
+    "GmbH",
+    "WDR mediagroup GmbH",
+    "Untertitel: WDR mediagroup GmbH im Auftrag des WDR",
 ])
 def test_drops_credits(line):
     assert texts(line) == []
@@ -91,6 +97,13 @@ def test_drops_credits(line):
 
 def test_cuts_credit_inside_real_line():
     assert texts("real words fur funk", "fur funk real words 2017 applaus") == ["real words", "real words"]
+
+
+@pytest.mark.parametrize("line", [
+    "Der Film ist untertitelt.", "Die GmbH ist pleite.", "Ich höre gern NDR live.",
+])
+def test_broadcaster_words_in_real_line_kept(line):
+    assert texts(line) == [line]
 
 
 def test_role_word_in_real_line_kept():

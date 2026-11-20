@@ -1,11 +1,12 @@
 # Changes
 
-2026.11.19 - New German hallucination patterns, # note markers, output errors
+2026.11.19 - New German hallucination and credit patterns, # note markers, output errors
 
 * `clean`: drops the German outro "Das war's für heute. Wir sehen uns beim nächsten Mal. Tschüss!" and its pieces, but not a bare "Tschüss!" or "Das war's."
 * `clean`: removes "Vertraue und glaube, es hilft, es heilt die göttliche Kraft!" wherever it sits in a cue
 * `clean`: drops the loop lines "Wer schön sein will, der muss auch lebt", "Du bist so schmerzhaft" and "Die Partei, verhoffnungslos"
 * `clean`: drops "God bless the King, the King of Israel", an English line Whisper prints into German transcripts
+* `clean`: removes broadcaster subtitling credits: "NDR live untertitelt.", "Live untertitelt vom WDR.", "WDR mediagroup GmbH", including a "GmbH" left alone in the next cue. A real line with "GmbH" or "untertitelt" in it stays
 * `clean`: strips a leading or trailing "#" used as a music note marker ("# Wir in Mexiko" becomes "Wir in Mexiko"). Only a # with a space next to it goes, so "#1" and hashtags stay
 * `clean`: an output name with no extension, or one that cannot be written, now gives a one-line error and moves on to the next file instead of crashing with a Python traceback
 * README and tests use the placeholder names Max and Erika Mustermann in the dubbing credit example instead of real people's names

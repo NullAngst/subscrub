@@ -78,6 +78,8 @@ def C(pattern, label="credit", case=False):
 
 
 P = r"[.!。！]?"   # optional end punctuation
+# German broadcasters that show up in fake subtitle credits.
+DE_TV = r"(zdf|ard|wdr|ndr|br|swr|mdr|hr|rbb|sr|arte|3sat|phoenix|kika)"
 
 BUILTIN = {
     "en": [
@@ -115,6 +117,14 @@ BUILTIN = {
         C(r"\bim auftrag (des|der|von)( (zdf|ard|wdr|ndr|swr|mdr|rbb))?\b"),
         C(r"\bf(ü|ue|u)r funk\b,?"),
         C(r"\b(19|20)\d{2},?\s+(applaus|jubel)\b"),
+        # "NDR live untertitelt.", "Live untertitelt vom WDR."
+        C(r"\b" + DE_TV + r",?\s+(live\s+)?untertitelt\b\.?"),
+        C(r"\b(live\s+)?untertitelt (von|vom|durch|f(ü|ue)r)( de[mnrs])? " + DE_TV + r"\b\.?"),
+        # The subtitling company credit, "WDR mediagroup GmbH", often split
+        # over two cues with "GmbH" alone in the second.
+        C(r"\b" + DE_TV + r"[\s-]*(media ?group|mediagroup)( gmbh)?\b\.?"),
+        C(r"\bmedia ?group gmbh\b\.?"),
+        D(r"gmbh" + P, "credit"),
         # Dubbing credits from German-dubbed TV documentaries. The role word
         # matches in any case, the name after it only when capitalised.
         C(r"\b(?i:sub\s*&\s*dub)( (?i:company))?\b", case=True),
