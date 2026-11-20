@@ -8,6 +8,7 @@
 * `clean`: drops "God bless the King, the King of Israel", an English line Whisper prints into German transcripts
 * `clean`: strips a leading or trailing "#" used as a music note marker ("# Wir in Mexiko" becomes "Wir in Mexiko"). Only a # with a space next to it goes, so "#1" and hashtags stay
 * `clean`: an output name with no extension, or one that cannot be written, now gives a one-line error and moves on to the next file instead of crashing with a Python traceback
+* README and tests use the placeholder names Max and Erika Mustermann in the dubbing credit example instead of real people's names
 * Tests for each new line, the # marker, and the output error, plus checks that the real proverb "Wer schön sein will, muss leiden." and a lone "Tschüss!" survive
 
 Reasons for changes: These turned up repeated over and over in real German Whisper transcripts and the existing packs missed all of them. Some subtitle tools mark sung lines with # in place of ♪, which was left in the text. The traceback turned up while testing.

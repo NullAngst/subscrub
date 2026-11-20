@@ -80,7 +80,7 @@ def test_keep_thanks():
     "Untertitelung des",
     "für funk,",
     "2017 Applaus",
-    "Sprecher Jochen Graf Deutsche Bearbeitung sub&dub company Redaktion Julian Windisch",
+    "Sprecher Max Mustermann Deutsche Bearbeitung sub&dub company Redaktion Erika Mustermann",
     "Untertitel der Amara.org-Community",
     "Subtitles by the Amara.org community",
     "Subtítulos realizados por la comunidad de Amara.org",
