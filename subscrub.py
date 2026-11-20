@@ -24,7 +24,7 @@ import subprocess
 import sys
 import tempfile
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 PROG = "subscrub"
 
 try:
@@ -98,6 +98,16 @@ BUILTIN = {
         D(r"bis zum n(ä|ae)chsten (mal|video)" + P, "outro"),
         D(r"(vielen )?dank( f(ü|ue)rs (zuschauen|zusehen))?" + P, "thanks"),
         D(r"(abonniert|abonniere)[^.\n]*" + P, "outro"),
+        D(r"das war['’]?s f(ü|ue)r heute[.!,]?(\s*wir sehen uns (beim|im) n(ä|ae)chsten (mal|video)[.!,]?)?(\s*tsch(ü|ue)ss?[.!]?)?"
+          r"|wir sehen uns (beim|im) n(ä|ae)chsten (mal|video)[.!,]?(\s*tsch(ü|ue)ss?[.!]?)?", "outro"),
+        # Lines Whisper loops on over music and silence in German audio. The
+        # real proverb ("wer schön sein will, muss leiden") is left alone.
+        C(r"vertraue und glaube,? es hilft,? es heilt die g(ö|oe)ttliche kraft!?", "hallucination"),
+        D(r"wer sch(ö|oe)n sein will,? (der )?muss auch (lebt|leben)" + P, "hallucination"),
+        D(r"du bist so schmerzhaft" + P, "hallucination"),
+        D(r"die partei,? verhoffnungslos" + P, "hallucination"),
+        # English, but it turns up in German transcripts.
+        D(r"god bless the king,? the king of israel" + P, "hallucination"),
         # The ZDF/funk credit, whole and in the pieces Whisper splits it into.
         C(r"\buntertitel(ung)?\b[^\n]*?\b(zdf|ard|wdr|ndr|br|swr|mdr|hr|rbb|funk|sat\.?1|rtl)\b( f(ü|ue)r funk)?,?\s*((19|20)\d{2})?\.?"),
         C(r"\b(zdf|ard|wdr|swr|ndr|mdr)( f(ü|ue)r funk)?,? (19|20)\d{2}\.?"),
@@ -342,6 +352,10 @@ def normalise(text):
     text = text.replace("\\N", " ").replace("\\n", " ").replace("\n", " ")
     text = NOTES_RE.sub(" ", text)
     text = re.sub(r"\s+", " ", text).strip()
+    # Some tools mark sung lines with "#" in place of a note: "# Wir in Mexiko".
+    # Only a # with a space after it (or before it, at the end) goes, so
+    # "#1" and "#hashtag" stay.
+    text = re.sub(r"^#+\s+|\s+#+$", "", text)
     text = re.sub(r"^(-\s*)+(?=\S)", "", text)      # stray dialogue dashes
     return text.strip()
 
@@ -827,7 +841,17 @@ def cmd_clean(a):
         dest = a.output or out_path(inp, a, ext)
         if a.in_place:
             shutil.copy2(inp, inp + ".bak")
-        save_subs(subs, dest, a.format)
+        try:
+            save_subs(subs, dest, a.format)
+        except pysubs2.exceptions.UnknownFileExtensionError:
+            sys.stderr.write(f"{PROG}: cannot tell the format of {dest}: "
+                             "give it an extension like .srt or pass --format\n")
+            failed += 1
+            continue
+        except OSError as e:
+            sys.stderr.write(f"{PROG}: cannot write {dest}: {e.strerror or e}\n")
+            failed += 1
+            continue
         rep.say(f"wrote {dest}")
     sys.exit(1 if failed else 0)
 

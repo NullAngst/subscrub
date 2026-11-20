@@ -45,6 +45,31 @@ def test_drops_outros(line):
     assert texts(line, "Real line here") == ["Real line here"]
 
 
+@pytest.mark.parametrize("line", [
+    " Das war's für heute. Wir sehen uns beim nächsten Mal. Tschüss!",
+    "Wir sehen uns beim nächsten Mal.",
+    "Vertraue und glaube, es hilft, es heilt die göttliche Kraft!",
+    "Wer schön sein will, der muss auch lebt",
+    "Du bist so schmerzhaft",
+    "Die Partei, verhoffnungslos",
+    "God bless the King, the King of Israel",
+])
+def test_drops_german_hallucinations(line):
+    assert texts(line, "Echte Zeile hier") == ["Echte Zeile hier"]
+
+
+def test_german_hallucination_cut_inside_real_line():
+    line = "Echte Zeile. Vertraue und glaube, es hilft, es heilt die göttliche Kraft!"
+    assert texts(line) == ["Echte Zeile."]
+
+
+@pytest.mark.parametrize("line", [
+    "Wer schön sein will, muss leiden.", "Tschüss!", "Das war's.",
+])
+def test_real_german_lines_kept(line):
+    assert texts(line) == [line]
+
+
 def test_keep_thanks():
     assert texts("Thank you.", keep_thanks=True) == ["Thank you."]
 
@@ -89,6 +114,17 @@ def test_sound_word_in_real_line_kept():
 
 def test_notes_stripped_inside_line():
     assert texts("♪ Some real words ♪") == ["Some real words"]
+
+
+@pytest.mark.parametrize("line,want", [
+    ("# Wir in Mexiko", "Wir in Mexiko"),
+    ("# Mi amor, mon chéri #", "Mi amor, mon chéri"),
+    ("## Ausländer", "Ausländer"),
+    ("#1 in den Charts", "#1 in den Charts"),
+    ("Das ist #hashtag", "Das ist #hashtag"),
+])
+def test_hash_note_marker(line, want):
+    assert texts(line) == [want]
 
 
 def test_keep_sound_tags():
@@ -216,6 +252,15 @@ def test_dry_run_writes_nothing(tmp_path):
     r = cli("clean", "-n", str(src))
     assert r.returncode == 0
     assert not (tmp_path / "in.clean.srt").exists()
+
+
+def test_output_without_extension_is_a_clear_error(tmp_path):
+    src = tmp_path / "in.srt"
+    make((0, 2, "Hello there")).save(str(src))
+    r = cli("clean", "-q", "-o", str(tmp_path / "out"), str(src))
+    assert r.returncode == 1
+    assert "Traceback" not in r.stderr
+    assert "--format" in r.stderr
 
 
 def test_in_place_keeps_backup(tmp_path):
